@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hotel Booking</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #c9a96e;
+    --gold-light: #e8d5a3;
+    --gold-dark: #9a7a48;
+    --cream: #faf7f2;
+    --charcoal: #1a1714;
+    --stone: #8c8278;
+    --ink: #2d2926;
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--charcoal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Jost', sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Atmospheric background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 80%, rgba(201,169,110,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 20%, rgba(201,169,110,0.05) 0%, transparent 60%),
+      linear-gradient(160deg, #1a1714 0%, #0f0d0b 50%, #1a1714 100%);
+    pointer-events: none;
+  }
+
+  /* Decorative corner lines */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 20px;
+    border: 1px solid rgba(201,169,110,0.12);
+    pointer-events: none;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    padding: 20px;
+    animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header-eyebrow {
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .header-eyebrow::before,
+  .header-eyebrow::after {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold));
+  }
+
+  .header-eyebrow::after {
+    background: linear-gradient(to left, transparent, var(--gold));
+  }
+
+  .header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 42px;
+    color: var(--cream);
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+  }
+
+  .header h1 em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  /* Card */
+  .card {
+    background: rgba(250, 247, 242, 0.04);
+    border: 1px solid rgba(201,169,110,0.2);
+    border-radius: 2px;
+    padding: 40px 44px;
+    position: relative;
+    backdrop-filter: blur(20px);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 30px; right: 30px;
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+
+  /* Corner ornaments */
+  .corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+  }
+  .corner::before, .corner::after {
+    content: '';
+    position: absolute;
+    background: var(--gold);
+  }
+  .corner::before { width: 100%; height: 1px; top: 0; left: 0; }
+  .corner::after { width: 1px; height: 100%; top: 0; left: 0; }
+  .corner.tl { top: 8px; left: 8px; }
+  .corner.tr { top: 8px; right: 8px; transform: scaleX(-1); }
+  .corner.bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
+  .corner.br { bottom: 8px; right: 8px; transform: scale(-1); }
+
+  /* Date row */
+  .date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* Form fields */
+  .field {
+    margin-bottom: 24px;
+    position: relative;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .field:nth-child(1) { animation-delay: 0.1s; }
+  .field:nth-child(2) { animation-delay: 0.15s; }
+  .field:nth-child(3) { animation-delay: 0.2s; }
+  .field:nth-child(4) { animation-delay: 0.25s; }
+  .field:nth-child(5) { animation-delay: 0.3s; }
+
+  label {
+    display: block;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  input[type="date"],
+  input[type="number"],
+  input[type="text"],
+  textarea,
+  select {
+    width: 100%;
+    background: rgba(250,247,242,0.04);
+    border: 1px solid rgba(201,169,110,0.25);
+    border-radius: 1px;
+    color: var(--cream);
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    padding: 13px 16px;
+    outline: none;
+    transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) sepia(1) saturate(2) hue-rotate(5deg);
+    opacity: 0.5;
+    cursor: pointer;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--gold);
+    background: rgba(201,169,110,0.06);
+    box-shadow: 0 0 0 3px rgba(201,169,110,0.08), inset 0 1px 0 rgba(201,169,110,0.05);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: rgba(250,247,242,0.2);
+  }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a96e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+  }
+
+  select option {
+    background: #1a1714;
+    color: var(--cream);
+  }
+
+  textarea {
+    resize: none;
+    height: 90px;
+    line-height: 1.6;
+  }
+
+  /* Guests with +/- control */
+  .guests-control {
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(201,169,110,0.25);
+    border-radius: 1px;
+    overflow: hidden;
+    background: rgba(250,247,242,0.04);
+    transition: border-color 0.3s;
+  }
+
+  .guests-control:focus-within {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,169,110,0.08);
+  }
+
+  .guests-btn {
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-size: 18px;
+    font-weight: 300;
+    width: 46px;
+    height: 46px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .guests-btn:hover { background: rgba(201,169,110,0.1); }
+
+  .guests-input {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    text-align: center;
+    flex: 1;
+    font-size: 16px;
+    padding: 13px 0 !important;
+    -moz-appearance: textfield;
+  }
+
+  .guests-input::-webkit-inner-spin-button,
+  .guests-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 28px 0;
+    color: rgba(201,169,110,0.3);
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(201,169,110,0.15);
+  }
+
+  /* Price summary */
+  .summary {
+    background: rgba(201,169,110,0.06);
+    border: 1px solid rgba(201,169,110,0.15);
+    border-radius: 1px;
+    padding: 18px 20px;
+    margin-bottom: 28px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    row-gap: 8px;
+  }
+
+  .summary-label {
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--stone);
+    text-transform: uppercase;
+  }
+
+  .summary-value {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--cream);
+    text-align: right;
+  }
+
+  .summary-total-label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--gold-light);
+    text-transform: uppercase;
+    padding-top: 10px;
+    border-top: 1px solid rgba(201,169,110,0.15);
+    margin-top: 4px;
+  }
+
+  .summary-total-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--gold);
+    text-align: right;
+    padding-top: 10px;
+    border-top: 1px solid rgba(201,169,110,0.15);
+    margin-top: 4px;
+  }
+
+  /* Button */
+  .btn {
+    width: 100%;
+    padding: 17px;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.4s;
+    border-radius: 1px;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    transform: translateX(-101%);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .btn:hover { color: var(--charcoal); }
+  .btn:hover::before { transform: translateX(0); }
+
+  .btn span { position: relative; z-index: 1; }
+
+  /* Success state */
+  .success-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(26,23,20,0.97);
+    z-index: 10;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 2px;
+    animation: fadeIn 0.5s ease both;
+  }
+
+  .success-overlay.show { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .success-icon {
+    width: 60px;
+    height: 60px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    color: var(--gold);
+    font-size: 24px;
+  }
+
+  .success-overlay h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 28px;
+    color: var(--cream);
+    margin-bottom: 10px;
+  }
+
+  .success-overlay p {
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--stone);
+    text-transform: uppercase;
+    margin-bottom: 30px;
+  }
+
+  .success-ref {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.3em;
+  }
+
+  .reset-btn {
+    margin-top: 24px;
+    background: none;
+    border: none;
+    color: var(--stone);
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="header">
+    <div class="header-eyebrow">Reservations</div>
+    <h1>Hotel<br><em>Booking</em></h1>
+  </div>
+
+  <div class="card">
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <!-- Dates -->
+    <div class="date-row">
+      <div class="field">
+        <label>Check-in</label>
+        <input type="date" id="checkin" value="2026-03-03">
+      </div>
+      <div class="field">
+        <label>Check-out</label>
+        <input type="date" id="checkout" value="2026-03-15">
+      </div>
+    </div>
+
+    <!-- Room Type -->
+    <div class="field">
+      <label>Room Type</label>
+      <select id="roomtype" onchange="updateSummary()">
+        <option value="single" data-price="120">Single Room</option>
+        <option value="double" data-price="180">Double Room</option>
+        <option value="deluxe" data-price="260">Deluxe Suite</option>
+        <option value="presidential" data-price="480">Presidential Suite</option>
+        <option value="penthouse" data-price="750">Penthouse</option>
+      </select>
+    </div>
+
+    <!-- Guests -->
+    <div class="field">
+      <label>Number of Guests</label>
+      <div class="guests-control">
+        <button class="guests-btn" onclick="changeGuests(-1)">−</button>
+        <input type="number" class="guests-input" id="guests" value="2" min="1" max="10" oninput="updateSummary()">
+        <button class="guests-btn" onclick="changeGuests(1)">+</button>
+      </div>
+    </div>
+
+    <!-- Special Requests -->
+    <div class="field">
+      <label>Special Requests <span style="opacity:0.4;font-size:8px">(Optional)</span></label>
+      <textarea id="requests" placeholder="Early check-in, dietary requirements, room preferences..."></textarea>
+    </div>
+
+    <!-- Summary -->
+    <div class="divider">Summary</div>
+    <div class="summary">
+      <span class="summary-label">Duration</span>
+      <span class="summary-value" id="s-nights">12 nights</span>
+      <span class="summary-label">Room Rate</span>
+      <span class="summary-value" id="s-rate">$120 / night</span>
+      <span class="summary-label">Guests</span>
+      <span class="summary-value" id="s-guests">2 guests</span>
+      <span class="summary-total-label">Total</span>
+      <span class="summary-total-value" id="s-total">$1,440</span>
+    </div>
+
+    <!-- CTA -->
+    <button class="btn" onclick="submitBooking()">
+      <span>Confirm Reservation</span>
+    </button>
+
+    <!-- Success overlay -->
+    <div class="success-overlay" id="success">
+      <div class="success-icon">✓</div>
+      <h2>Booking Confirmed</h2>
+      <p>Your reservation is secured</p>
+      <div class="success-ref" id="ref-code"></div>
+      <button class="reset-btn" onclick="resetForm()">Make another booking</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function updateSummary() {
+  const checkin = new Date(document.getElementById('checkin').value);
+  const checkout = new Date(document.getElementById('checkout').value);
+  const nights = Math.max(1, Math.round((checkout - checkin) / 86400000));
+  const select = document.getElementById('roomtype');
+  const rate = parseInt(select.options[select.selectedIndex].dataset.price);
+  const guests = parseInt(document.getElementById('guests').value) || 1;
+
+  document.getElementById('s-nights').textContent = `${nights} night${nights > 1 ? 's' : ''}`;
+  document.getElementById('s-rate').textContent = `$${rate} / night`;
+  document.getElementById('s-guests').textContent = `${guests} guest${guests > 1 ? 's' : ''}`;
+  document.getElementById('s-total').textContent = `$${(nights * rate).toLocaleString()}`;
+}
+
+function changeGuests(delta) {
+  const el = document.getElementById('guests');
+  const val = parseInt(el.value) || 1;
+  el.value = Math.max(1, Math.min(10, val + delta));
+  updateSummary();
+}
+
+document.getElementById('checkin').addEventListener('change', updateSummary);
+document.getElementById('checkout').addEventListener('change', updateSummary);
+
+function submitBooking() {
+  const checkin = document.getElementById('checkin').value;
+  const checkout = document.getElementById('checkout').value;
+  if (!checkin || !checkout || new Date(checkout) <= new Date(checkin)) {
+    alert('Please select valid check-in and check-out dates.');
+    return;
+  }
+  const ref = 'HBK-' + Math.random().toString(36).substr(2, 8).toUpperCase();
+  document.getElementById('ref-code').textContent = 'Reference: ' + ref;
+  document.getElementById('success').classList.add('show');
+}
+
+function resetForm() {
+  document.getElementById('success').classList.remove('show');
+}
+
+updateSummary();
+</script>
+</body>
+</html>
